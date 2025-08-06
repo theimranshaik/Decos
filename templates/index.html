@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Decos</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital,wght@0,400;1,400&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            min-height: 100vh;
+            background: #f5f4ed;
+            font-family: 'DM Sans', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+        }
+        .container {
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+        }
+        .title {
+            font-family: 'Instrument Serif', serif;
+            font-style: italic;
+            font-size: 48px;
+            font-weight: 300;
+            color: #222;
+            margin-bottom: 30px;
+
+        }
+        .input-container {
+            position: relative;
+            margin-bottom: 20px;
+            display: inline-block;
+            width: auto;
+            min-width: 500px; /* Increased from 300px to 450px (1.5x) */
+        }
+        .question-input {
+            font-family: 'DM Sans', sans-serif;
+            width: auto;
+            min-width: 500px; /* Increased from 300px to 450px (1.5x) */
+            padding: 15px 60px 15px 15px;
+            border: none;
+            font-size: 16px;
+            outline: none;
+            background: #fff;
+             border-radius: 0px;
+            resize: none;
+            overflow: hidden;
+            height: auto;
+            min-height: 100px;  /* Increased from 50px to 100px (1.5x) */
+            max-height: 120px;
+        }
+        .submit-btn {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #ff4500;
+            border: none;
+            font-size: 16px;
+            color: #fff;
+            cursor: pointer;
+            transition: background 0.2s ease;
+            width: 40px;
+            height: 40px;
+             border-radius: 0px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .submit-btn:hover { background: #f5f4ed; color: #ff4500; }
+        .submit-btn:disabled { background: #ccc; cursor: not-allowed; }
+        .status { 
+            font-size: 14px;
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            text-align: left;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .status.show { opacity: 1; }
+        .loading { 
+            display: inline-block;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        .factors-container {
+            position: relative;
+            overflow: hidden;
+        }
+        .factor {
+            background: #fff;
+            padding: 20px;
+            margin-bottom: 20px;
+             border-radius: 0px;
+            display: none;
+            animation: slideIn 0.3s ease;
+            position: relative;
+        }
+        .factor.active {
+            display: block;
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        .factor-title {
+            font-family: 'Instrument Serif', serif;
+            font-style: italic;
+            font-size: 24px;
+            font-weight: 300;
+            color: #222;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        .option {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 10px;
+            background: #fff;
+            border: 1px solid #eee;
+            font-size: 14px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .option:hover { background: #faf9f5; color: #222; }
+        .option.selected { 
+            background: #f5f4ed; 
+            color: #222; 
+            border-color: #ff4500;
+        }
+        .navigation {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            display: flex;
+            gap: 8px;
+        }
+        .nav-btn {
+            width: 40px;
+            height: 40px;
+            background: #f5f4ed;
+            color: #222;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.2s ease;
+             border-radius: 0px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .nav-btn:hover { background: #f5f4ed; color: #ff4500; }
+        .nav-btn:disabled { background: #fff; cursor: not-allowed; }
+        .recommendation {
+            font-family: 'Instrument Serif', serif;
+            font-style: italic;
+            font-size: 28px;
+            color: #222;
+            margin-bottom: 20px;
+        }
+        .recommendation-section {
+            background: #fff;
+            padding: 20px;
+            margin-bottom: 20px;
+             border-radius: 0px;
+        }
+        .new-decision-btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            background: #ff4500;
+            color: #fff;
+            border: none;
+            font-size: 14px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+        .new-decision-btn:hover { background: #f5f4ed; color: #ff4500; }
+        @media (max-width: 480px) {
+            .title { font-size: 28px; }
+            .factor-title, .recommendation { font-size: 24px; }
+            .input-container { min-width: 320px; } /* Increased from 280px */
+            .question-input { min-width: 320px; } /* Increased from 280px */
+        }
+
+        #helpButton {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            width: 30px;
+            height: 30px;
+            background: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 0%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            color: #ff4500;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+            transition: all 0.2s ease;
+        }
+
+        #helpButton:hover {
+            background: #ff4500;
+            color: #fff;
+            transform: scale(1.1);
+        }
+        .recents-link {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 16px;
+            color: #888;
+            text-decoration: none;
+            font-family: 'DM Sans', sans-serif;
+            transition: color 0.2s;
+            padding: 2px 6px;
+        }
+        .recents-link:hover {
+            color: #ff4500;
+            text-decoration: underline;
+        }
+        
+        .decos-logo {
+            position: absolute;
+            font-family: 'Instrument Serif', serif;
+            font-style: italic;
+            top: 15px;
+            left: 15px;
+            font-size: 3rem;
+            font-weight: 300;
+            color: #ff4500;
+            text-decoration: none;
+            letter-spacing: 0px;
+            transition: transform 0.2s, text-shadow 0.2s;
+        }
+
+        .decos-logo:hover {
+            color: #ff4500;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body> 
+    <div class="container">
+        <a href="/" class="decos-logo">decos</a>
+        
+        <a href="{{ url_for('recents') }}" class="recents-link">Recents</a>
+        <h1 class="title">Hi, Lets Make a Decision</h1>
+        <div class="input-container">
+            <textarea
+                class="question-input"
+                placeholder="eg: Should i pursue job or business?"
+                id="question"
+                rows="1"
+            ></textarea>
+            <button class="submit-btn" id="decideBtn" onclick="getFactors()">→</button>
+        </div>
+        <div id="status" class="status"></div>
+        <div id="factors" class="factors-container"></div>
+            <!-- Help Button -->
+    <div id="helpButton">?</div>
+
+    </div>
+
+    <script>
+        let currentSelections = {};
+        let allFactors = [];
+        let currentFactorIndex = 0;
+
+        // Auto-resize textarea
+        function autoResize(textarea) {
+            textarea.style.height = 'auto';
+            textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px';
+        }
+
+        // Initialize auto-resize
+        const questionInput = document.getElementById('question');
+        questionInput.addEventListener('input', () => autoResize(questionInput));
+
+        function showStatus(message, isLoading = false) {
+            const status = document.getElementById('status');
+            status.innerHTML = isLoading ? `<span class="loading">${message}</span>` : message;
+            status.classList.add('show');
+        }
+
+        function hideStatus() {
+            const status = document.getElementById('status');
+            status.classList.remove('show');
+        }
+
+        function showFactor(index) {
+            const factors = document.querySelectorAll('.factor');
+            factors.forEach((factor, i) => {
+                factor.classList.remove('active');
+                if (i === index) {
+                    factor.classList.add('active');
+                }
+            });
+            
+            // Update navigation buttons for the ACTIVE factor only
+            const activeFactor = document.querySelector('.factor.active');
+            if (activeFactor) {
+                const prevBtn = activeFactor.querySelector('#prevBtn');
+                const nextBtn = activeFactor.querySelector('#nextBtn');
+                if (prevBtn) prevBtn.disabled = index === 0;
+                if (nextBtn) nextBtn.disabled = index === allFactors.length - 1;
+            }
+        }
+
+        function nextFactor() {
+            if (currentFactorIndex < allFactors.length - 1) {
+                currentFactorIndex++;
+                showFactor(currentFactorIndex);
+            }
+        }
+
+        function prevFactor() {
+            if (currentFactorIndex > 0) {
+                currentFactorIndex--;
+                showFactor(currentFactorIndex);
+            }
+        }
+
+        async function getFactors() {
+            const question = document.getElementById('question').value;
+            if (!question) return;
+
+            const btn = document.getElementById('decideBtn');
+            btn.disabled = true;
+            btn.textContent = '⋯';
+            
+            showStatus('Analyzing your decision and identifying key factors...', true);
+
+            const response = await fetch('/get_factors', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({question})
+            });
+            const data = await response.json();
+            
+            hideStatus();
+            btn.disabled = false;
+            btn.textContent = '→';
+            
+            displayFactors(data.factors);
+        }
+
+        function displayFactors(factorsText) {
+            try {
+                const factors = JSON.parse(factorsText);
+                const container = document.getElementById('factors');
+                container.innerHTML = '';
+                
+                if (factors.factors && factors.factors.length > 0) {
+                    allFactors = factors.factors;
+                    currentFactorIndex = 0;
+                    currentSelections = {};
+                    
+                    // Create all factor cards
+                    allFactors.forEach((factor, index) => {
+                        const div = document.createElement('div');
+                        div.className = 'factor';
+                        div.innerHTML = `
+                            <h3 class="factor-title">${factor.name}</h3>
+                            <div class="option" onclick="selectOption(${index}, 0)">${factor.options[0]}</div>
+                            <div class="option" onclick="selectOption(${index}, 1)">${factor.options[1]}</div>
+                            <div class="navigation">
+                                <button class="nav-btn" id="prevBtn" onclick="prevFactor()" disabled>←</button>
+                                <button class="nav-btn" id="nextBtn" onclick="nextFactor()">→</button>
+                            </div>
+                        `;
+                        container.appendChild(div);
+                    });
+                    
+                    // Show first factor
+                    showFactor(0);
+                    showStatus('Great! Start by selecting your preference for the first factor...');
+                } else {
+                    container.innerHTML = '<p>Error: Invalid factors format</p>';
+                }
+            } catch (e) {
+                console.error('JSON parsing error:', e);
+                document.getElementById('factors').innerHTML = '<p>Error parsing factors. Please try again.</p>';
+            }
+        }
+
+        function selectOption(factorIndex, optionIndex) {
+            currentSelections[factorIndex] = optionIndex;
+            
+            // Update visual selection
+            const currentFactor = document.querySelector('.factor.active');
+            const options = currentFactor.querySelectorAll('.option');
+            options.forEach((opt, i) => {
+                opt.classList.remove('selected');
+                if (i === optionIndex) {
+                    opt.classList.add('selected');
+                }
+            });
+            
+            const selectedCount = Object.keys(currentSelections).length;
+            if (selectedCount === allFactors.length) {
+                showStatus('Perfect! Working on recommending the best decision for you...', true);
+                updateRecommendation();
+            } else {
+                showStatus(`${selectedCount}/${allFactors.length} factors selected. Keep going!`);
+            }
+        }
+
+        async function updateRecommendation() {
+            if (Object.keys(currentSelections).length < allFactors.length) return;
+
+            const question = document.getElementById('question').value;
+            fetch('/get_recommendation', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({question, selections: currentSelections})
+            })
+            .then(response => response.json())
+            .then(data => {
+                hideStatus();
+
+                // Save to localStorage history
+                try {
+                    const history = JSON.parse(localStorage.getItem('history') || '[]');
+                    history.push({
+                        query: question,
+                        recommendation: data.recommendation
+                    });
+                    localStorage.setItem('history', JSON.stringify(history));
+                } catch (e) {
+                    // Ignore storage errors
+                }
+
+                // Show recommendation in the current factor card
+                const currentFactor = document.querySelector('.factor.active');
+                currentFactor.innerHTML = `
+                    <div class="recommendation-section">
+                        <div class="recommendation">${data.recommendation}</div>
+                    </div>
+                    <button class="new-decision-btn" onclick="resetApp()">Make New Decision</button>
+                `;
+            });
+        }
+
+        function resetApp() {
+            // Reset everything
+            currentSelections = {};
+            allFactors = [];
+            currentFactorIndex = 0;
+            
+            // Clear displays
+            document.getElementById('question').value = '';
+            document.getElementById('factors').innerHTML = '';
+            hideStatus();
+            
+            // Reset textarea height
+            autoResize(document.getElementById('question'));
+        }
+
+        // Enter key support
+        document.getElementById('question').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                getFactors();
+            }
+        });
+        document.getElementById('helpButton').addEventListener('click', () => {
+    window.location.href = 'help.html';
+});
+    </script>
+</body>
+</html> 
