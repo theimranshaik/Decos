@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Recents</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@1&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }        
+        body {
+            min-height: 100vh;
+            background: #f5f4ed;
+            font-family: 'DM Sans', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 15px;
+        }
+        .container {
+            max-width: 500px;
+            width: 100%;
+            margin-top: 40px;
+        }
+        .header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        .back-arrow {
+            font-size: 24px;
+            color: #222;
+            text-decoration: none;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0 10px 0 0;
+        }
+        .back-arrow:hover { background: #f5f4ed; color: #ff4500; 
+            
+        }
+        .side-header {
+            font-size: 16px;
+            color: #888;
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 400;
+            letter-spacing: 0px;
+        }
+        .history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .history-item {
+            background: #fff;
+            padding: 20px;
+            border-radius: 0px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+        }
+        .query {
+            font-size: 15px;
+            color: #222;
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+        .recommendation {
+            font-family: 'Instrument Serif', serif;
+            font-style: italic;
+            font-size: 18px;
+            color: #ff4500;
+        }
+        @media (max-width: 480px) {
+            .container { max-width: 320px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header-row">
+            <a href="{{ url_for('index') }}" class="back-arrow" title="Back to Home">&#8592;</a>
+            <div class="side-header">Recents</div>
+        </div>
+        <div class="history-list" id="historyList">
+            <!-- History items will be injected here by JS -->
+        </div>
+    </div>
+    <script>
+        // Example: [{query: "...", recommendation: "..."}]
+        const history = JSON.parse(localStorage.getItem('history') || '[]');
+        const list = document.getElementById('historyList');
+        if (history.length === 0) {
+            list.innerHTML = '<div style="color:#888;text-align:center;">No recent history.</div>';
+        } else {
+            history.slice().reverse().forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'history-item';
+                div.innerHTML = `
+                    <div class="query">${item.query}</div>
+                    <div class="recommendation">${item.recommendation}</div>
+                `;
+                list.appendChild(div);
+            });
+        }
+    </script>
+</body>
+</html> 
